@@ -1,0 +1,179 @@
+import RPi.GPIO as GPIO #Calling the header file which helps in using GPIO's of Pi
+import time #Calling for time to provide delays in the program
+import random
+GPIO.setwarnings(False) #Do not show any warnings
+
+x = 1
+y = 1
+z = 0
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(4,GPIO.OUT) #Initialize GPIO4 as an output
+GPIO.setup(17,GPIO.OUT) #Initialize GPIO17 as an output
+GPIO.setup(27,GPIO.OUT) #Initialize GPIO27 as an output
+GPIO.setup(24,GPIO.OUT)
+GPIO.setup(23,GPIO.OUT)
+GPIO.setup(18,GPIO.OUT)
+GPIO.setup(25,GPIO.OUT)
+GPIO.setup(12,GPIO.OUT)
+GPIO.setup(16,GPIO.OUT)
+GPIO.setup(5,GPIO.OUT)
+GPIO.setup(6,GPIO.OUT)
+GPIO.setup(13,GPIO.OUT)
+
+columns = [4,17,27,24,23,18,25,12,16] #GPIO pins of columns in order
+rows = [5,6,13] #GPIO pins of rows in order
+random = [4,24,25,17,23,12,27,18,16] #GPIO pins of columns in random 
+
+for z in range(3):
+    GPIO.output(rows[z],1) #pulling up the rows
+for z in range(9):
+    GPIO.output(columns[z],0) #pulling down the columns
+
+while 1:
+#Turns on the lights indiviudally 
+    for y in range(3): #Execute the loop 3 times incrementing y value from zero to three
+        GPIO.output(rows[y],0) #pull down the rows pointed by 'y'
+        for x in range(9): #Execute the loop 9 times incrementing x value from zero to eight
+            GPIO.output(columns[x],1) #pull up the columns pointed by 'x'
+            time.sleep(0.1) #sleep for 100ms
+            GPIO.output(columns[x],0) #pull down the columns after 100ms
+        GPIO.output(rows[y],1) #pull up the row after 100ms
+#Turns on the lights by columns one by one 
+    for y in range(3):
+        GPIO.output(rows[2-y],0)
+    for y in range(3):
+        GPIO.output(rows[y],0)  
+    for x in range(9):
+        GPIO.output(columns[x],1)
+        time.sleep(0.1)
+        GPIO.output(columns[x],0)
+#The columns turn on one by one again but reversed order
+    for y in range(3):
+        GPIO.output(rows[y],1)
+    for y in range(3):
+        GPIO.output(rows[2-y],0)
+    for x in range(9):
+        GPIO.output(columns[8-x],1)
+        time.sleep(0.1)
+        GPIO.output(columns[8-x],0)
+#Turns on the lights one by one but starts in a different row direction 
+    for y in range(3):
+        GPIO.output(rows[2-y],1)
+    for y in range(3):
+        GPIO.output(rows[y],0)
+        for x in range(9):
+            GPIO.output(random[x],1)
+            time.sleep(0.1)
+            GPIO.output(random[x],0)
+        GPIO.output(rows[y],1)
+#Reverses the light order from the previous command 
+    for y in range(3):
+        GPIO.output(rows[2-y],0)
+        for x in range(9):
+            GPIO.output(random[8-x],1)
+            time.sleep(0.1)
+            GPIO.output(random[8-x],0)
+        GPIO.output(rows[2-y],1)
+#Turns the columns on again one by one
+    for y in range(3): 
+        GPIO.output(rows[y],0) 
+    for x in range(9): 
+        GPIO.output(columns[x],1) 
+        time.sleep(0.1) 
+        GPIO.output(columns[x],0) 
+    GPIO.output(rows[y],1)
+#Scrambles the order of columns that turn on and off
+    for y in range(3):
+        GPIO.output(rows[2-y],0)
+    for y in range(3):
+        GPIO.output(rows[y],0)
+        for x in range(9):
+            GPIO.output(columns[x],1)
+            time.sleep(0.1)
+            GPIO.output(columns[x-4],0)
+            time.sleep(0.1)
+            GPIO.output(columns[x-5],1)
+    time.sleep(1)
+#Turns on the middle row of the cube 
+    for y in range(2,3):
+        GPIO.output(rows[y],0)
+        for x in range(0,3):
+            GPIO.output(columns[x],0)
+            time.sleep(0.5)
+#Turns off the first row 
+        for x in range(6,9):
+            GPIO.output(columns[x],0)
+            time.sleep(0.5)
+#Turns off the third row 
+        for x in range(4,6):
+            GPIO.output(columns[x],1)
+        time.sleep(1)
+    for y in range(3):
+        GPIO.output(rows[y],0)
+#Turns on the middle row of the cube, and wil blink one LED off then go back on and a new row will appear on
+#then the third row goes on 
+    for y in range(3):
+        GPIO.output(rows[1-y],1)
+        for x in range(9):
+            GPIO.output(columns[x],1)
+            time.sleep(0.1)
+        time.sleep(0.5)
+    for y in range(3):
+        GPIO.output(rows[y-2],0)
+        for x in range(9):
+            GPIO.output(columns[x],1)
+        time.sleep(1)
+        GPIO.output(columns[x],0)
+        time.sleep(0.5)
+    for y in range(3):
+        GPIO.output(rows[y],0)
+    for y in range(3):
+        GPIO.output(rows[y],0)
+        for x in range(9):
+            GPIO.output(columns[x],1)
+            time.sleep(0.1)
+    for y in range(3):
+        GPIO.output(rows[y],1)
+#Turns on the LEDs to act like a cycle
+    for y in range(1,2):
+        GPIO.output(rows[y],0)
+        for y in range(3):
+            GPIO.output(columns[y],0)
+            for x in range(9):
+                GPIO.output(random[x],1)
+                time.sleep(0.1)
+                GPIO.output(random[x],0)
+            time.sleep(0.5)
+#Turns on a single LED in the middle of the cube
+    for y in range(1):
+        GPIO.output(rows[y],1)
+    for y in range(2,3):
+        GPIO.output(rows[y],1)
+    for y in range(1,2):
+        GPIO.output(rows[y],0)
+    for x in range(9):
+        GPIO.output(columns[x-5],1)
+    time.sleep(0.5)
+#Turns on the four corners of the cube only 
+    for y in range(1,2):
+        GPIO.output(rows[y],1)
+    for y in range(1):
+        GPIO.output(rows[y],0)
+    for y in range(2,3):
+        GPIO.output(rows[y],0)
+    for x in range(9):
+        GPIO.output(columns[x-8],1)
+        GPIO.output(columns[x-6],1)
+        GPIO.output(columns[x-2],1)
+        GPIO.output(columns[x],1)
+        GPIO.output(columns[x-7],0)
+        GPIO.output(columns[x-5],0)
+        GPIO.output(columns[x-4],0)
+        GPIO.output(columns[x-3],0)
+        GPIO.output(columns[x-1],0)
+    time.sleep(5)
+    for x in range(9):
+        GPIO.output(columns[x],0)
+
+    break
